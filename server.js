@@ -1,3 +1,4 @@
+
 require("dotenv").config();
 
 const express = require("express");
@@ -6,12 +7,39 @@ const cors = require("cors");
 const app = express();
 
 // ======================================
-// Middleware
+// Allowed Frontend Origins
+// ======================================
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://edurwanda-lake.vercel.app",
+];
+
+// ======================================
+// CORS
 // ======================================
 
 app.use(
   cors({
-    origin: "*",
+    origin: (origin, callback) => {
+      // Allow requests with no Origin header
+      // such as server-to-server requests
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log("CORS blocked:", origin);
+
+      return callback(
+        new Error("Not allowed by CORS")
+      );
+    },
+
     methods: [
       "GET",
       "POST",
@@ -20,12 +48,17 @@ app.use(
       "DELETE",
       "OPTIONS",
     ],
+
     allowedHeaders: [
       "Content-Type",
       "Authorization",
     ],
   })
 );
+
+// ======================================
+// Body Parser
+// ======================================
 
 app.use(express.json());
 
@@ -235,6 +268,11 @@ app.listen(
 
     console.log(
       `🌍 API: http://localhost:${PORT}`
+    );
+
+    console.log(
+      "🌐 Production Frontend: " +
+        "https://edurwanda-lake.vercel.app"
     );
 
     console.log(
