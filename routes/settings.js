@@ -1,3 +1,4 @@
+
 const express = require("express");
 const router = express.Router();
 
@@ -6,8 +7,9 @@ const { protect, adminOnly } = require("../middleware/authMiddleware");
 
 // ======================================
 // GET SETTINGS
+// Public — frontend needs these settings
 // ======================================
-router.get("/", protect, adminOnly, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     let settings = await prisma.setting.findFirst();
 
@@ -42,6 +44,7 @@ router.get("/", protect, adminOnly, async (req, res) => {
 
 // ======================================
 // UPDATE SETTINGS
+// Admin only
 // ======================================
 router.put("/", protect, adminOnly, async (req, res) => {
   try {
@@ -49,7 +52,18 @@ router.put("/", protect, adminOnly, async (req, res) => {
 
     if (!settings) {
       settings = await prisma.setting.create({
-        data: {},
+        data: {
+          siteName: "EduRwanda",
+          siteDescription: "Rwanda National Education Platform",
+          theme: "dark",
+          primaryColor: "blue",
+          language: "English",
+          allowRegistration: true,
+          allowBookDownloads: true,
+          allowExamDownloads: true,
+          maintenanceMode: false,
+          maxUploadSize: 20,
+        },
       });
     }
 
