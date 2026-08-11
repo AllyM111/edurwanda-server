@@ -7,12 +7,14 @@ const cors = require("cors");
 const app = express();
 
 // ======================================
-// Allowed Frontend Origins
+// ALLOWED FRONTEND ORIGINS
 // ======================================
 
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
+
+  // Main Vercel domain
   "https://edurwanda-lake.vercel.app",
 ];
 
@@ -23,21 +25,30 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no Origin header
-      // such as server-to-server requests
+      // Allow server-to-server requests
       if (!origin) {
         return callback(null, true);
       }
 
+      // Exact allowed origins
       if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow Vercel preview deployments
+      if (
+        origin.startsWith("https://edurwanda-") &&
+        origin.endsWith(".vercel.app")
+      ) {
+        console.log("CORS allowed Vercel preview:", origin);
         return callback(null, true);
       }
 
       console.log("CORS blocked:", origin);
 
-      return callback(
-        new Error("Not allowed by CORS")
-      );
+      // Do NOT throw an error here.
+      // Simply don't allow the origin.
+      return callback(null, false);
     },
 
     methods: [
@@ -53,11 +64,13 @@ app.use(
       "Content-Type",
       "Authorization",
     ],
+
+    optionsSuccessStatus: 204,
   })
 );
 
 // ======================================
-// Body Parser
+// BODY PARSER
 // ======================================
 
 app.use(express.json());
@@ -69,16 +82,16 @@ app.use(
 );
 
 // ======================================
-// Request Logger
+// REQUEST LOGGER
 // ======================================
 
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+  console.log(`${req.method} ${req.originalUrl}`);
   next();
 });
 
 // ======================================
-// Root Test
+// ROOT TEST
 // ======================================
 
 app.get("/", (req, res) => {
@@ -94,7 +107,7 @@ app.get("/", (req, res) => {
 // ======================================
 
 // ======================================
-// Authentication
+// AUTHENTICATION
 // ======================================
 
 app.use(
@@ -103,7 +116,7 @@ app.use(
 );
 
 // ======================================
-// Books
+// BOOKS
 // ======================================
 
 app.use(
@@ -112,7 +125,7 @@ app.use(
 );
 
 // ======================================
-// Exams
+// EXAMS
 // ======================================
 
 app.use(
@@ -121,7 +134,7 @@ app.use(
 );
 
 // ======================================
-// Users
+// USERS
 // ======================================
 
 app.use(
@@ -130,7 +143,7 @@ app.use(
 );
 
 // ======================================
-// Profile
+// PROFILE
 // ======================================
 
 app.use(
@@ -139,7 +152,7 @@ app.use(
 );
 
 // ======================================
-// Analytics
+// ANALYTICS
 // ======================================
 
 app.use(
@@ -148,7 +161,7 @@ app.use(
 );
 
 // ======================================
-// Settings
+// SETTINGS
 // ======================================
 
 app.use(
@@ -157,7 +170,7 @@ app.use(
 );
 
 // ======================================
-// Comments
+// COMMENTS
 // ======================================
 
 app.use(
@@ -166,7 +179,7 @@ app.use(
 );
 
 // ======================================
-// YouTube Video CMS 🎥
+// YOUTUBE VIDEO CMS
 // ======================================
 
 app.use(
@@ -175,7 +188,7 @@ app.use(
 );
 
 // ======================================
-// YouTube Channel CMS 🎬
+// YOUTUBE CHANNEL CMS
 // ======================================
 
 app.use(
@@ -184,7 +197,7 @@ app.use(
 );
 
 // ======================================
-// PDF Reader API 🚀
+// PDF READER
 // ======================================
 
 app.use(
@@ -193,7 +206,7 @@ app.use(
 );
 
 // ======================================
-// Health Check
+// HEALTH CHECK
 // ======================================
 
 app.get(
@@ -228,14 +241,15 @@ app.use(
 
 app.use(
   (err, req, res, next) => {
-    console.error(
-      "SERVER ERROR:",
-      err
-    );
+    console.error("=================================");
+    console.error("SERVER ERROR:");
+    console.error(err);
+    console.error("=================================");
 
     res.status(500).json({
       success: false,
       message: "Internal Server Error",
+
       error:
         process.env.NODE_ENV === "development"
           ? err.message
@@ -248,41 +262,12 @@ app.use(
 // START SERVER
 // ======================================
 
-const PORT =
-  process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
-app.listen(
-  PORT,
-  () => {
-    console.log(
-      "================================="
-    );
-
-    console.log(
-      "🚀 EduRwanda Server Running"
-    );
-
-    console.log(
-      `📡 Port: ${PORT}`
-    );
-
-    console.log(
-      `🌍 API: http://localhost:${PORT}`
-    );
-
-    console.log(
-      "🌐 Production Frontend: " +
-        "https://edurwanda-lake.vercel.app"
-    );
-
-    console.log(
-      "💬 Comments: http://localhost:" +
-        PORT +
-        "/api/comments"
-    );
-
-    console.log(
-      "================================="
-    );
-  }
-);
+app.listen(PORT, () => {
+  console.log("=================================");
+  console.log("🚀 EduRwanda Server Running");
+  console.log(`📡 Port: ${PORT}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || "production"}`);
+  console.log("=================================");
+});
