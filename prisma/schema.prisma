@@ -7,311 +7,160 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ======================================
-// USER
-// ======================================
-
 model User {
-  id String @id @default(cuid())
-
-  name String
-
-  email String @unique
-
-  password String
-
-  role String @default("USER")
-
-  status String @default("ACTIVE")
-
-  lastLogin DateTime?
-
-  avatar String?
-
-  phone String?
-
-  bio String?
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
+  id              String            @id @default(cuid())
+  name            String
+  email           String            @unique
+  password        String
+  role            String            @default("USER")
+  createdAt       DateTime          @default(now())
+  status          String            @default("ACTIVE")
+  lastLogin       DateTime?
+  avatar          String?
+  bio             String?
+  phone           String?
+  updatedAt       DateTime          @updatedAt
+  notes           BookNote[]
+  bookmarks       Bookmark[]
+  comments        Comment[]
   readingProgress ReadingProgress[]
-
-  bookmarks Bookmark[]
-
-  notes BookNote[]
-
-  comments Comment[]
 }
-
-// ======================================
-// BOOKS
-// ======================================
 
 model Book {
-  id Int @id @default(autoincrement())
-
-  type String @default("EDUCATION_BOOK")
-
-  title String
-
-  author String?
-
-  category String?
-
-  level String?
-
-  subject String?
-
-  className String?
-
-  description String?
-
-  year Int?
-
-  pdfUrl String
-
-  coverUrl String?
-
-  downloads Int @default(0)
-
-  views Int @default(0)
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
+  title           String
+  subject         String?
+  createdAt       DateTime          @default(now())
+  level           String?
+  coverUrl        String?
+  id              Int               @id @default(autoincrement())
+  author          String?
+  category        String?
+  description     String?
+  pdfUrl          String
+  year            Int?
+  downloads       Int               @default(0)
+  updatedAt       DateTime          @updatedAt
+  views           Int               @default(0)
+  className       String?
+  type            String            @default("EDUCATION_BOOK")
+  notes           BookNote[]
+  bookmarks       Bookmark[]
   readingProgress ReadingProgress[]
-
-  bookmarks Bookmark[]
-
-  notes BookNote[]
 }
-
-// ======================================
-// EXAMS
-// ======================================
 
 model Exam {
-  id Int @id @default(autoincrement())
-
-  title String
-
-  category String @default("PAST_PAPER")
-
-  type String @default("QUESTIONS_AND_ANSWERS")
-
-  level String?
-
-  subject String?
-
-  year Int?
-
-  fileUrl String
-
-  coverUrl String?
-
-  downloads Int @default(0)
-
-  views Int @default(0)
-
+  title     String
+  subject   String?
+  fileUrl   String
   createdAt DateTime @default(now())
-
+  year      Int?
+  level     String?
+  id        Int      @id @default(autoincrement())
+  category  String   @default("PAST_PAPER")
+  downloads Int      @default(0)
+  type      String   @default("QUESTIONS_AND_ANSWERS")
   updatedAt DateTime @updatedAt
+  views     Int      @default(0)
+  coverUrl  String?
 }
-
-// ======================================
-// SETTINGS
-// ======================================
 
 model Setting {
-  id String @id @default(cuid())
-
-  siteName String @default("EduRwanda")
-
-  siteDescription String @default("Rwanda National Education Platform")
-
-  siteEmail String?
-
-  sitePhone String?
-
-  siteAddress String?
-
-  theme String @default("dark")
-
-  primaryColor String @default("blue")
-
-  language String @default("English")
-
-  logoUrl String?
-
-  faviconUrl String?
-
-  allowRegistration Boolean @default(true)
-
-  allowBookDownloads Boolean @default(true)
-
-  allowExamDownloads Boolean @default(true)
-
-  maintenanceMode Boolean @default(false)
-
-  maxUploadSize Int @default(20)
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  siteName           String   @default("EduRwanda")
+  siteDescription    String   @default("Rwanda National Education Platform")
+  siteEmail          String?
+  sitePhone          String?
+  siteAddress        String?
+  theme              String   @default("dark")
+  primaryColor       String   @default("blue")
+  language           String   @default("English")
+  logoUrl            String?
+  faviconUrl         String?
+  allowRegistration  Boolean  @default(true)
+  allowBookDownloads Boolean  @default(true)
+  allowExamDownloads Boolean  @default(true)
+  maintenanceMode    Boolean  @default(false)
+  maxUploadSize      Int      @default(20)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
-// ======================================
-// PDF READING PROGRESS
-// ======================================
-
 model ReadingProgress {
-  id String @id @default(cuid())
-
-  userId String
-
-  bookId Int
-
-  page Int @default(1)
-
-  progress Float @default(0)
-
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    Int
+  page      Int      @default(1)
+  progress  Float    @default(0)
   createdAt DateTime @default(now())
-
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, bookId])
 }
 
-// ======================================
-// BOOKMARKS
-// ======================================
-
 model Bookmark {
-  id String @id @default(cuid())
-
-  userId String
-
-  bookId Int
-
-  page Int
-
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    Int
+  page      Int
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, bookId, page])
 }
 
-// ======================================
-// BOOK NOTES
-// ======================================
-
 model BookNote {
-  id String @id @default(cuid())
-
-  userId String
-
-  bookId Int
-
-  page Int
-
-  content String
-
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    Int
+  page      Int
+  content   String
   createdAt DateTime @default(now())
-
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// ======================================
-// COMMENTS
-// ======================================
-
 model Comment {
-  id String @id @default(cuid())
-
-  content String @db.Text
-
+  id        String   @id @default(cuid())
+  content   String
   createdAt DateTime @default(now())
-
   updatedAt DateTime @updatedAt
-
-  userId String?
-
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
 
   @@index([createdAt])
   @@index([userId])
 }
 
-// ======================================
-// YOUTUBE VIDEO CMS
-// ======================================
-
 model YoutubeVideo {
-  id Int @id @default(autoincrement())
-
-  title String
-
+  id          Int      @id @default(autoincrement())
+  title       String
   description String?
-
-  channel String
-
-  youtubeUrl String
-
-  embedUrl String
-
-  thumbnail String?
-
-  category String @default("EDUCATION")
-
-  featured Boolean @default(false)
-
-  views Int @default(0)
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
+  channel     String
+  youtubeUrl  String
+  embedUrl    String
+  thumbnail   String?
+  category    String   @default("EDUCATION")
+  featured    Boolean  @default(false)
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-// ======================================
-// YOUTUBE CHANNEL CMS
-// ======================================
-
 model YoutubeChannel {
-  id Int @id @default(autoincrement())
-
-  slug String @unique
-
-  name String
-
-  description String?
-
-  icon String?
-
+  id           Int      @id @default(autoincrement())
+  slug         String   @unique
+  name         String
+  description  String?
+  icon         String?
   profileImage String?
-
-  coverImage String?
-
-  youtubeUrl String?
-
-  category String @default("MEDIA")
-
-  active Boolean @default(true)
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
+  coverImage   String?
+  youtubeUrl   String?
+  category     String   @default("MEDIA")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
