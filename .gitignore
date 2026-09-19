@@ -3,3 +3,8 @@ node_modules
 .env
 
 /generated/prisma
+
+# Local database backups and migration files
+edurwanda-data.sql
+edurwanda-local-backup.dump
+.env.supabase
