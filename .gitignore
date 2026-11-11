@@ -1,10 +1,17 @@
-node_modules
 # Keep environment variables out of version control
 .env
+.env.*
+!.env.example
 
+node_modules
 /generated/prisma
 
 # Local database backups and migration files
 edurwanda-data.sql
 edurwanda-local-backup.dump
+*.dump
 .env.supabase
+
+# Generated / local-only
+backend-tree.txt
+uploads/

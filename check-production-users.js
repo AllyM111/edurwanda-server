@@ -1,9 +1,17 @@
 const { PrismaClient } = require("@prisma/client");
 
+const productionUrl = process.env.PROD_DATABASE_URL;
+
+// Never fall back to the default database by accident.
+if (!productionUrl) {
+  console.error("ERROR: PROD_DATABASE_URL is not set.");
+  process.exit(1);
+}
+
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.PROD_DATABASE_URL,
+      url: productionUrl,
     },
   },
 });

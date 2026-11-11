@@ -1,32 +1,42 @@
+// Resets an ADMIN account's password in the PRODUCTION database.
+//
+// Usage (nothing secret is stored in this file):
+//   PROD_DATABASE_URL="postgres://..." \
+//   ADMIN_EMAIL="admin@example.com" \
+//   ADMIN_NEW_PASSWORD="a-long-unique-password" \
+//   node reset-admin-password.js
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 
+const productionUrl = process.env.PROD_DATABASE_URL;
+const email = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
+const newPassword = process.env.ADMIN_NEW_PASSWORD || "";
+
+if (!productionUrl) {
+  console.error("ERROR: PROD_DATABASE_URL is not set.");
+  process.exit(1);
+}
+
+if (!email) {
+  console.error("ERROR: ADMIN_EMAIL is not set.");
+  process.exit(1);
+}
+
+if (newPassword.length < 12) {
+  console.error("ERROR: ADMIN_NEW_PASSWORD must be at least 12 characters.");
+  process.exit(1);
+}
+
 const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.PROD_DATABASE_URL,
-    },
-  },
+  datasources: { db: { url: productionUrl } },
 });
 
 async function resetAdminPassword() {
-  const email = "allymutabazi11@gmail.com";
-
-  // Temporary password — change this after logging in.
-  const newPassword = "Jesus2@28";
-
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
+  const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {
     throw new Error(`User not found: ${email}`);
   }
-
-  console.log("");
-  console.log("Found user:");
-  console.log("Email:", user.email);
-  console.log("Role:", user.role);
 
   if (user.role !== "ADMIN") {
     throw new Error(
@@ -38,25 +48,17 @@ async function resetAdminPassword() {
 
   await prisma.user.update({
     where: { email },
-    data: {
-      password: hashedPassword,
-    },
+    data: { password: hashedPassword, status: "ACTIVE" },
   });
 
   console.log("");
-  console.log("=================================");
   console.log("ADMIN PASSWORD RESET SUCCESSFULLY");
-  console.log("=================================");
   console.log("Email:", email);
-  console.log("Role:", user.role);
-  console.log("Temporary password: Jesus2@28");
-  console.log("");
-  console.log("Please change this password after logging in.");
+  console.log("The new password was NOT printed. Log in and change it.");
 }
 
 resetAdminPassword()
   .catch((error) => {
-    console.error("");
     console.error("Password reset failed:");
     console.error(error.message);
     process.exitCode = 1;
