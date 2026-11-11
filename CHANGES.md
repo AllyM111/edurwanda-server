@@ -51,6 +51,23 @@
   (login, public settings and health stay available), and the site shows a maintenance page.
 - Client: removed dead files (`src/api/`, `AdminYoutube.jsx`) and 22 leftover `console.log` calls.
 
+## Added in round 3
+- **Uploads over 10 MB:** Cloudinary's free plan rejects files over 10 MB, so the default upload limit is now
+  10 MB (`UPLOAD_MAX_MB`). The admin sees a clear message (e.g. "This file is 15.0 MB but the storage plan only
+  accepts files up to 10.0 MB") instead of "Book creation failed", and the admin forms check the size before
+  uploading. To allow bigger files, upgrade the Cloudinary plan (then raise `UPLOAD_MAX_MB` on the server and
+  `VITE_MAX_UPLOAD_MB` on the client) or move PDFs to other storage.
+- **SEO / social metadata (client):** rewritten `index.html` (title, description, canonical, robots, theme colour,
+  icons + manifest, Open Graph, Twitter card, JSON-LD for Organization + WebSite search), a real
+  `public/og-image.png` (the old tags pointed at a file that did not exist), `robots.txt`, `sitemap.xml`.
+  Every page now sets its own title/description/canonical (`RouteMeta`, `usePageMeta`); book and exam pages
+  also add Book / LearningResource structured data and use the cover as the preview image; login, register,
+  search and the dashboard are `noindex`.
+- **Server `/sitemap.xml`** lists every book and exam page (cached 1 hour); `robots.txt` points to it.
+- Set `VITE_SITE_URL` (client) and `SITE_URL` (server) to your real public address. They default to
+  `https://edurwanda-lake.vercel.app`; `public/robots.txt` and `public/sitemap.xml` are plain files, so edit the
+  address there by hand if it differs.
+
 ## Known limitations
 - Old exam bookmarks/notes created before this update were never saved, so there is nothing to migrate.
 - Cloudinary files uploaded before this update are only cleaned up when their record is deleted/replaced.

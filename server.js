@@ -100,6 +100,8 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use("/sitemap.xml", require("./routes/sitemap"));
+
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/books", require("./routes/books"));
 app.use("/api/exams", require("./routes/exams"));
